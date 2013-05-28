@@ -1,0 +1,67 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{polski}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+
+%opening
+\title{Projekt Aksolotl}
+\author{Aksolotl Team}
+\begin{document}
+
+\maketitle
+\newpage
+
+\section{Skład zespołu}
+\begin{enumerate}
+ \item Pastucha Konrad
+ \item Perwel Krzysztof
+ \item Reut Michał
+ \item Rogowski Piotr
+\end{enumerate}
+
+\section{Przydzielone zadania}
+To nie jest pełna lista zadań, są to zadania jak dotąd przydzielone, aktualną liste zadań można śledzić na stronie projektu. (\ref{site})
+\subsection{Pastucha Konrad}
+\begin{itemize}
+ \item Projekt logo
+ \item Klasa hashowania danych
+\end{itemize}
+
+\subsection{Perwel Krzysztof}
+\begin{itemize}
+ \item Wektoryzacja logo
+ \item Pobieranie i parsowanie listy mirrorów
+\end{itemize}
+
+\subsection{Reut Michał}
+\begin{itemize}
+ \item Obsługa połączeń ftp
+ \item Obsługa połączeń http
+\end{itemize}
+
+\subsection{Rogowski Piotr}
+Team Leader
+\begin{itemize}
+ \item Pobieranie pliku
+ \item Odczytywanie i zapisywanie pliku z metadanymi
+\end{itemize}
+
+
+\section{Strona projektu}
+\label{site}
+Projekt jest hostowany w systemie Gitlab na koputerze wewnątrz sieci akademickiej. Z tego powodu występują pewne utrudnienia.
+
+Strona projektu jest dostępna jedynie w sieci AGH.
+
+W późniejszym czasie projekt zostanie zmigrowany do repozytorów GitHub
+
+Link do projektu: \url{http://192.168.113.192:9292/opensource/aksolotl}
+
+Dostęp dla gości: 
+
+Login: Guest
+
+Hasło: guest123
+
+\end{document}
