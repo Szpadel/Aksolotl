@@ -3,11 +3,6 @@
 RepositoryParser::RepositoryParser(QObject *parent) :
     QObject(parent)
 {
-    validSchemes.push_back("http");
-    validSchemes.push_back("https");
-    validSchemes.push_back("ftp");
-
-
 }
 
 QList<QUrl> RepositoryParser::parseRepositories(QString repository)
@@ -37,3 +32,37 @@ bool RepositoryParser::validateRepoUrl(const QUrl &url)
     return isValid;
 }
 
+bool RepositoryParser::addValidScheme(QString scheme)
+{
+    if(!validSchemes.contains(scheme))
+    {
+        validSchemes.push_back(scheme);
+    };
+    return true;
+}
+
+bool RepositoryParser::addValidSchemes(QList<QString> schemes)
+{
+    foreach (QString scheme, schemes) {
+        addValidScheme(scheme);
+    }
+    return true;
+}
+
+bool RepositoryParser::removeValidScheme(QString scheme)
+{
+    return validSchemes.removeOne(scheme);
+}
+
+bool RepositoryParser::removeValidSchemes(QList<QString> schemes)
+{
+    foreach (QString scheme, schemes) {
+        removeValidScheme(scheme);
+    }
+    return true;
+}
+
+bool RepositoryParser::flushValidSchemes()
+{
+    return validSchemes.empty();
+}
