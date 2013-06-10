@@ -16,12 +16,10 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     repositoryparser.cpp \
-    metadatafile.cpp \
-    testmetadatafile.cpp
+    metadatafile.cpp
 
 HEADERS  += mainwindow.h \
     repositoryparser.h \
-    metadatafile.h \
-    testmetadatafile.h
+    metadatafile.h
 
 FORMS    += mainwindow.ui
