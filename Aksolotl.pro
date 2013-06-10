@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -16,10 +17,16 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     repositoryparser.cpp \
+    filedownloader.cpp \
+    ftpdownloader.cpp \
+    httpdownloader.cpp \
     metadatafile.cpp
 
 HEADERS  += mainwindow.h \
     repositoryparser.h \
+    filedownloader.h \
+    ftpdownloader.h \
+    httpdownloader.h \
     metadatafile.h
 
 FORMS    += mainwindow.ui
