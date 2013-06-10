@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -14,9 +15,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    repositoryparser.cpp
+    repositoryparser.cpp \
+    filedownloader.cpp \
+    ftpdownloader.cpp \
+    httpdownloader.cpp
 
 HEADERS  += mainwindow.h \
-    repositoryparser.h
+    repositoryparser.h \
+    filedownloader.h \
+    ftpdownloader.h \
+    httpdownloader.h
 
 FORMS    += mainwindow.ui
