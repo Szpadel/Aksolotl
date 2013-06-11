@@ -19,15 +19,13 @@ SOURCES += main.cpp\
     repositoryparser.cpp \
     ftpdownloader.cpp \
     httpdownloader.cpp \
-    metadatafile.cpp \
-    testmetadatafile.cpp
+    metadatafile.cpp
 
 HEADERS  += mainwindow.h \
     repositoryparser.h \
     filedownloader.h \
     ftpdownloader.h \
     httpdownloader.h \
-    metadatafile.h \
-    testmetadatafile.h
+    metadatafile.h
 
 FORMS    += mainwindow.ui
