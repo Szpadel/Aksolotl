@@ -17,7 +17,6 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     repositoryparser.cpp \
-    filedownloader.cpp \
     ftpdownloader.cpp \
     httpdownloader.cpp \
     metadatafile.cpp \
