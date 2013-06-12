@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QByteArray>
 #include <QDataStream>
+#include <QDebug>
 
 #include <exception>
 #include <cmath>

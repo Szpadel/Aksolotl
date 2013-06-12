@@ -24,7 +24,7 @@ bool MetadataFile::open(QString metadataFilename)
 
 bool MetadataFile::readData()
 {
-    QDataStream data;
+    QDataStream data(rawData);
     char sign[2];
     data.readRawData(&sign[0], 2);
 
@@ -41,30 +41,48 @@ bool MetadataFile::readData()
         return false;
     }
 
-    data >> filename >>
+    QByteArray header;
+    QDataStream headerStream(&header, QIODevice::ReadWrite);
+
+    data >> header >> headerChecksum;
+
+    if(qChecksum(header, header.size()) != headerChecksum) {
+        error = FILE_CORRUPTED;
+        return false;
+    }
+
+    headerStream >> filename >>
             filesize >>
             description >>
             mirrors >>
             repositories >>
             chunkSizeLevel;
 
-    data >> headerChecksum;
 
-    // TODO: sprawdzenie sumy kontrolnej naglowka
+    QByteArray chunksData;
+    QDataStream chunksStream(&chunksData, QIODevice::ReadWrite);
+    QByteArray chunksDataComp;
 
-    data >> chunksChecksum;
+    data >> chunksDataComp >>
+            dataChecksum;
 
-    data >> dataChecksum;
+    if(qChecksum(chunksDataComp, chunksDataComp.size()) != dataChecksum) {
+        error = FILE_CORRUPTED;
+        return false;
+    }
 
-    chunksize = pow(2, chunkSizeLevel);
+    chunksData = qUncompress(chunksDataComp);
+
+    chunksStream >> chunksChecksum;
+
+    chunksize = pow(2, chunkSizeLevel)*1024;
 
     if(chunksChecksum.size() != ceil((double)filesize/chunksize)) {
         error = FILE_CORRUPTED;
         return false;
     }
 
-    // TODO: sprawdzenie sumy kontrolnej danych
-
+    fileStatus = LOADED;
     return true;
 }
 
@@ -105,13 +123,14 @@ bool MetadataFile::save(QString metadataFilename)
     }
 
     rawData.clear();
-    QDataStream data(rawData);
+    QDataStream data(&rawData, QIODevice::WriteOnly);
 
-    data << "AX";
+    data.writeRawData("AX", 2);
     data << (qint16) 0;
 
     QByteArray header;
-    QDataStream headerData(header);
+    header.clear();
+    QDataStream headerData(&header, QIODevice::WriteOnly);
     headerData << filename <<
                 filesize <<
                 description <<
@@ -123,18 +142,31 @@ bool MetadataFile::save(QString metadataFilename)
                qChecksum(header, header.size());
 
     QByteArray chunksData;
-    QDataStream chunks(chunksData);
+    QByteArray chunksDataComp;
+    QDataStream chunks(&chunksData, QIODevice::WriteOnly);
 
     chunks << chunksChecksum;
 
-    data << chunksData <<
-               qChecksum(chunksData, chunksData.size());
+    chunksDataComp = qCompress(chunksData, 9);
+
+    data << chunksDataComp <<
+               qChecksum(chunksDataComp, chunksDataComp.size());
 
     if(fileStatus == CLOSED) {
+        metadataFile.setFileName(metadataFilename);
         metadataFile.open(QIODevice::ReadWrite);
     }
+    if(! metadataFile.isWritable()) {
+        qDebug() << "metadata file is not writable!";
+    }
     metadataFile.seek(0);
-    metadataFile.write(rawData, rawData.size());
+    metadataFile.write(rawData);
+    if(metadataFile.error() != QFile::FileError::NoError) {
+        qDebug() << "Metadata save error: " <<
+                    metadataFile.errorString();
+        return false;
+    }
+    metadataFile.resize(metadataFile.pos());
     return true;
 }
 
@@ -250,6 +282,7 @@ uchar MetadataFile::getChunkSizeLevel()
 void MetadataFile::setChunkSizeLevel(uchar chunkSizeLevel)
 {
     this->chunkSizeLevel = chunkSizeLevel;
+    this->chunksize = pow(2, chunkSizeLevel)*1024;
 }
 
 
