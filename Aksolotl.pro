@@ -20,13 +20,25 @@ SOURCES += main.cpp\
     filedownloader.cpp \
     ftpdownloader.cpp \
     httpdownloader.cpp \
-    metadatafile.cpp
+    metadatafile.cpp \
+    editmetadatafilewindow.cpp \
+    helpers.cpp \
+    task.cpp \
+    downloadmanager.cpp
 
 HEADERS  += mainwindow.h \
     repositoryparser.h \
     filedownloader.h \
     ftpdownloader.h \
     httpdownloader.h \
-    metadatafile.h
+    metadatafile.h \
+    editmetadatafilewindow.h \
+    helpers.h \
+    task.h \
+    downloadmanager.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    editmetadatafilewindow.ui
+
+RESOURCES += \
+    resources.qrc
