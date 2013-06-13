@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     editmetadatafilewindow.cpp \
     helpers.cpp \
     task.cpp \
-    downloadmanager.cpp
+    downloadmanager.cpp \
+    chunk.cpp
 
 HEADERS  += mainwindow.h \
     repositoryparser.h \
@@ -34,7 +35,8 @@ HEADERS  += mainwindow.h \
     editmetadatafilewindow.h \
     helpers.h \
     task.h \
-    downloadmanager.h
+    downloadmanager.h \
+    chunk.h
 
 FORMS    += mainwindow.ui \
     editmetadatafilewindow.ui
