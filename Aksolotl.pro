@@ -17,8 +17,8 @@ QMAKE_CXXFLAGS += -std=c++11
 SOURCES += main.cpp\
         mainwindow.cpp \
     repositoryparser.cpp \
-    ftpdownloader.cpp \
-    httpdownloader.cpp \
+   # ftpdownloader.cpp \
+   # httpdownloader.cpp \
     metadatafile.cpp \
     editmetadatafilewindow.cpp \
     helpers.cpp \
@@ -29,8 +29,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     repositoryparser.h \
     filedownloader.h \
-    ftpdownloader.h \
-    httpdownloader.h \
+   # ftpdownloader.h \
+   # httpdownloader.h \
     metadatafile.h \
     editmetadatafilewindow.h \
     helpers.h \
