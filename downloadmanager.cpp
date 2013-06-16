@@ -31,7 +31,7 @@ QList<incorrectChunkInfo> DownloadManager::optimizeChunks(Task &task)
             badChunksSpace.firstIncorrectChunk = chunk;
             badChunksSpace.sizeOfCorruption = sizeOfIncorrect;
 
-            badChunksSpaces.insert(badChunksSpace);
+            badChunksSpaces.push_back(badChunksSpace);
             longestIncorrect=0;
         }
     }
