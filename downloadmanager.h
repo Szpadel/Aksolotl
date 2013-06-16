@@ -16,13 +16,15 @@ public:
     void addTask(Task task);
     QList<Task*> getTasks();
 
+
 protected:
     QList<Task*> tasks;
+    QMap<Chunk*,int> optimizeChunks(Task *task);
     
 signals:
     
 public slots:
-    void taskStatusChanged(Task *task);
+    void taskStatusChanged(Task &task);
     void chunkChanged(Task *task, Chunk* chunk, Chunk::Status oldStatus);
     
 };
