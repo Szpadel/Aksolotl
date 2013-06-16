@@ -16,20 +16,24 @@ void DownloadManager::chunkChanged(Task *task, Chunk *chunk)
 {
 }
 
-QMap<Chunk*,int> DownloadManager::optimizeChunks(Task &task)
+QList<incorrectChunkInfo> DownloadManager::optimizeChunks(Task &task)
 {
-    int longestIncorrect = 0;
-    QMap<Chunk*,int> badWays;
+    int sizeOfIncorrect = 0;
+    QList<incorrectChunkInfo> badChunksSpaces;
     foreach (Chunk chunk, task.getChunks()) {
         if(chunk.getStatus() != chunk.OK)
         {
-            longestIncorrect++;
+            sizeOfIncorrect++;
         }
-        else if(longestIncorrect!=0)
+        else if(sizeOfIncorrect!=0)
         {
-            chunkyWay.insert(chunk,longestIncorrect);
+            BadChunksSpace badChunksSpace;
+            badChunksSpace.firstIncorrectChunk = chunk;
+            badChunksSpace.sizeOfCorruption = sizeOfIncorrect;
+
+            badChunksSpaces.insert(badChunksSpace);
             longestIncorrect=0;
         }
     }
-    return badWays;
+    return badChunksSpaces;
 }

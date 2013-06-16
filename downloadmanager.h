@@ -19,8 +19,13 @@ public:
 
 protected:
     QList<Task*> tasks;
-    QMap<Chunk*,int> optimizeChunks(Task *task);
-    
+    QList<incorrectChunkInfo> optimizeChunks(Task *task);
+    struct BadChunksSpace
+    {
+        Chunk* firstIncorrectChunk;
+        int sizeOfCorruption;
+    };
+
 signals:
     
 public slots:
