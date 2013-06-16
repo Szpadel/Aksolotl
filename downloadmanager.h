@@ -23,7 +23,7 @@ signals:
     
 public slots:
     void taskStatusChanged(Task *task);
-    void chunkChanged(Task *task, Chunk* chunk);
+    void chunkChanged(Task *task, Chunk* chunk, Chunk::Status oldStatus);
     
 };
 
