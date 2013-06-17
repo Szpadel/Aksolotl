@@ -7,7 +7,7 @@ class Chunk : public QObject
 {
     Q_OBJECT
 public:
-    explicit Chunk(int possition, quint16 checksum, QObject *parent = 0);
+    Chunk(int possition, quint16 checksum, QObject *parent = 0);
 
     enum Status {
         UNKNOWN,
