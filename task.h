@@ -57,8 +57,8 @@ protected:
     void setProgress(int progress);
     quint64 generateCheckSum();
     
-signals:    
-    void chunkChanged(Task* task, Chunk* chunk);
+signals:
+    void chunkChanged(Task* task, Chunk* chunk, Chunk::Status oldStatus);
     void taskStatusChanged(Task *task);
     void progressChanged(int progress);
 

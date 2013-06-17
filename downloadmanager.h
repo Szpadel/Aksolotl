@@ -16,14 +16,21 @@ public:
     void addTask(Task task);
     QList<Task*> getTasks();
 
+
 protected:
     QList<Task*> tasks;
-    
+    QList<incorrectChunkInfo> optimizeChunks(Task *task);
+    struct BadChunksSpace
+    {
+        Chunk* firstIncorrectChunk;
+        int sizeOfCorruption;
+    };
+
 signals:
     
 public slots:
-    void taskStatusChanged(Task *task);
-    void chunkChanged(Task *task, Chunk* chunk);
+    void taskStatusChanged(Task &task);
+    void chunkChanged(Task *task, Chunk* chunk, Chunk::Status oldStatus);
     
 };
 
