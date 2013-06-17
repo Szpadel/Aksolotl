@@ -44,36 +44,49 @@ void DownloadManager::chunkChanged(Task *task, Chunk *chunk, Chunk::Status oldSt
 void DownloadManager::startDownloading(Task *task)
 {
     QList<BadChunksSpace> badChunksSpaces = optimizeChunks(task);
-    QList<QUrl> url = task.metadataFile()->getMirrorList();
-    int position = badChunksSpace.firstIncorrectChunk->possition();
-    quint64 chunksize = task.metadataFile()->getFilesize();
 
     foreach (BadChunksSpace badChunksSpace, badChunksSpaces) {
-        fileDownloader.downloadFile(
-                        url.at(0),
-                        chunksize * position,
-                        chunksize * badChunksSpace.sizeOfCorruption,
-                        chunksize);
+        QList<QUrl> url = badChunksSpace.task->metadataFile()->getMirrorList();
+        int position = badChunksSpace.incorrectChunks.at(0)->possition();
+        int incorrectChunks = badChunksSpace.incorrectChunks.size();
+        quint64 chunksize = badChunksSpace.task->metadataFile()->getFilesize();
+
+        badChunksSpace.fileDownloader->downloadFile(url.at(0),
+                                                    position*chunksize,
+                                                    incorrectChunks*chunksize,
+                                                    chunksize);
     }
 }
 
 QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
 {
-    int sizeOfCorruption = 0;
-    QList<incorrectChunkInfo> badChunksSpaces;
-    foreach (Chunk chunk, task.getChunks()) {
-        if(chunk.getStatus() != chunk.OK)
-        {
-            sizeOfCorruption++;
-        }
-        else if(sizeOfCorruption!=0)
-        {
-            BadChunksSpace badChunksSpace;
-            badChunksSpace.firstIncorrectChunk = chunk;
-            badChunksSpace.sizeOfCorruption = sizeOfCorruption;
+    QList<BadChunksSpace> badChunksSpaces;
 
-            badChunksSpaces.push_back(badChunksSpace);
-            sizeOfCorruption=0;
+    Chunk *lastChunk = NULL;
+    BadChunksSpace *badChunkSpace = new badChunkSpace;
+
+    foreach (Chunk chunk, task.getChunks()) {
+
+        if(chunk.getStatus() != NULL && chunk.getStatus() != Chunk::OK)
+        {
+            if(lastChunk->getStatus() != Chunk::OK)
+            {
+                badChunkSpace->incorrectChunks.push_back(&chunk);
+            }
+            else
+            {
+                badChunkSpace = new badChunkSpace;
+                badChunkSpace->fileDownloader = new FileDownloader;
+                badChunkSpace->task=task;
+                badChunkSpace->incorrectChunks.push_back(&chunk);
+
+                badChunksSpaces.push_back(badChunkSpace);
+            }
+            isLastChankCorrect = false;
+        }
+        else
+        {
+            isLastChankCorrect = true;
         }
     }
     return badChunksSpaces;

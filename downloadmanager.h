@@ -22,8 +22,9 @@ public:
 protected:
     struct BadChunksSpace
     {
-        Chunk* firstIncorrectChunk;
-        int sizeOfCorruption;
+        FileDownloader *fileDownloader;
+        QList<Chunk*> incorrectChunks;
+        Task* task = NULL;
     };
 
     QList<Task*> tasks;
