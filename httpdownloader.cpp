@@ -16,6 +16,8 @@ bool HttpDownloader::downloadFile(QUrl url, quint64 start, quint64 size, int chu
         return false;
     }
 
+    isDownloading = true;
+
     QNetworkRequest request;
     QNetworkReply *reply;
     QByteArray data;
@@ -38,6 +40,7 @@ bool HttpDownloader::downloadFile(QUrl url, quint64 start, quint64 size, int chu
     if( variant.toInt() != 206){
         this->errorStatus = FileDownloader::ErrorType::PARTIAL_NOT_SUPPORTED;
         emit this->error(this->errorStatus, "partial content not supported by the server");
+        isDownloading = false;
         return false;
     }
 
@@ -55,6 +58,7 @@ bool HttpDownloader::downloadFile(QUrl url, quint64 start, quint64 size, int chu
             data.remove(0, chunkSize);
         }
     }
+    isDownloading = false;
     return true;
 
 }
@@ -75,3 +79,7 @@ quint64 HttpDownloader::checkFileSize(QUrl url)
     return variant.toULongLong();
 }
 
+bool HttpDownloader::isDownloading()
+{
+    return isDownloading;
+}
