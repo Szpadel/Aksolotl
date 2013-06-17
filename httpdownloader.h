@@ -6,13 +6,14 @@
 #include <QObject>
 #include <QNetworkAccessManager>
 #include <QUrl>
+#include <QByteArray>
 
 class HttpDownloader : public FileDownloader
 {
 public:
     HttpDownloader(QNetworkAccessManager *accessManager , QObject *parent = 0);
 
-    bool downloadFile(QUrl url, quint64 start = 0, quint64 end = 0, quint64 chunkSize = 0);
+    bool downloadFile(QUrl url, quint64 start = 0, quint64 size = 0, quint64 chunkSize = 0);
     quint64 checkFileSize(QUrl url);
     bool isDownloading();
 
