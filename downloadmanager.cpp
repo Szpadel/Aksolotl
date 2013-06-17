@@ -32,12 +32,29 @@ void DownloadManager::taskStatusChanged(Task *task)
         this->startDownloading(task);
     } else
     {
+        disconnect(task, SIGNAL(taskStatusChanged(Task*, Chunk*, Chunk::Status)));
+        disconnect(task, SIGNAL(chunkChanged(Task*)));
         tasks.removeOne(task);
     }
 }
 
 void DownloadManager::chunkChanged(Task *task, Chunk *chunk, Chunk::Status oldStatus)
 {
+    //if(chunk->getStatus() == Chunk::OK)
+    //{
+        //((BadChunksSpace*)badChunksSpace)->task-> chunk sie poprawil
+    //    ((BadChunksSpace*)badChunksSpace)->incorrectChunks.removeOne(&chunk);
+    //}
+}
+
+void DownloadManager::chunkDownloaded(QByteArray chunkData, void *badChunksSpace)
+{
+    Chunk* downloadedChunk = ((BadChunksSpace*)badChunksSpace)->incorrectChunks.at(0);
+    if(downloadedChunk->checksum() == qChecksum(chunkData,chunkData.size()))
+    {
+        // TODO: WPISAĆ NAZWĘ FUNKCJI
+        ((BadChunksSpace*)badChunksSpace)->task->dupujDane(chunkData);
+    }
 
 }
 
@@ -76,7 +93,11 @@ QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
             else
             {
                 badChunkSpace = new badChunkSpace;
+
                 badChunkSpace->fileDownloader = new FileDownloader;
+                connect(badChunkSpace->fileDownloader,SIGNAL(chunkDownloaded(QByteArray)),
+                        this,chunkDownloaded(QByteArray));
+
                 badChunkSpace->task=task;
                 badChunkSpace->incorrectChunks.push_back(&chunk);
 
