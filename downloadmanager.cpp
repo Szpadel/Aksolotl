@@ -80,11 +80,11 @@ QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
     QList<BadChunksSpace> badChunksSpaces;
 
     Chunk *lastChunk = NULL;
-    BadChunksSpace *badChunkSpace = new badChunkSpace;
+    BadChunksSpace *badChunkSpace;
 
-    foreach (Chunk chunk, task.getChunks()) {
+    foreach (Chunk *chunk, task.getChunks()) {
 
-        if(chunk.getStatus() != NULL && chunk.getStatus() != Chunk::OK)
+        if(lastChunk != NULL && chunk->getStatus() != Chunk::OK)
         {
             if(lastChunk->getStatus() != Chunk::OK)
             {
@@ -92,16 +92,15 @@ QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
             }
             else
             {
-                badChunkSpace = new badChunkSpace;
-
-                badChunkSpace->fileDownloader = new FileDownloader;
+                /*badChunkSpace->fileDownloader = new FileDownloader;
                 connect(badChunkSpace->fileDownloader,SIGNAL(chunkDownloaded(QByteArray)),
-                        this,chunkDownloaded(QByteArray));
+                        this,chunkDownloaded(QByteArray));*/
 
                 badChunkSpace->task=task;
                 badChunkSpace->incorrectChunks.push_back(&chunk);
 
                 badChunksSpaces.push_back(badChunkSpace);
+                badChunkSpace = new badChunkSpace;
             }
             isLastChankCorrect = false;
         }
