@@ -41,7 +41,7 @@ protected:
     QVector<Chunk> chunks;
     
 signals:
-    void chunkChanged(Task* task, Chunk* chunk);
+    void chunkChanged(Task* task, Chunk* chunk, Chunk::Status oldStatus);
     void taskStatusChanged(Task *task);
     void progressChanged(int progress);
 

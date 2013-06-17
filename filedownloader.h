@@ -26,7 +26,7 @@ public:
         this->accessManager = accessManager;
     }
 
-    virtual bool downloadFile(QUrl url, quint64 start = 0, quint64 size = 0, quint64 chunkSize = 0) = 0;
+    virtual bool downloadFile(QUrl url, quint64 start = 0, quint64 size = 0, int chunkSize = 0) = 0;
     virtual quint64 checkFileSize(QUrl url) = 0;
 
     ErrorType getError()
@@ -42,7 +42,7 @@ protected:
     ErrorType errorStatus = NO_ERROR;
     
 signals:
-    void chunkDownloaded(QByteArray *chunkData);
+    void chunkDownloaded(QByteArray chunkData);
     void fileDownloaded();
     void error(ErrorType e, QString description);
 
