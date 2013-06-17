@@ -15,25 +15,25 @@ class DownloadManager : public QObject
 public:
     explicit DownloadManager(QObject *parent = 0);
 
-    void addTask(Task task);
+    void addTask(Task *task);
     QList<Task*> getTasks();
 
 
 protected:
-    QList<Task*> tasks;
-    QList<QUrl*> tasks;
-    QList<incorrectChunkInfo> optimizeChunks(Task *task);
-    FileDownloader fileDownloader;
-
-    void startDownloading(Task *task);
-    void stopDownloading(Task *task);
-    void pauseDownloading(Task *task);
-
     struct BadChunksSpace
     {
         Chunk* firstIncorrectChunk;
         int sizeOfCorruption;
     };
+
+    QList<Task*> tasks;
+    QList<BadChunksSpace> optimizeChunks(Task *task);
+    QList<FileDownloader> fileDownloaders;
+
+    void startDownloading(Task *task);
+    void stopDownloading(Task *task);
+    void pauseDownloading(Task *task);
+
 
 signals:
     

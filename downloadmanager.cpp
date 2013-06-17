@@ -6,11 +6,16 @@ DownloadManager::DownloadManager(QObject *parent) :
 
 }
 
-void DownloadManager::addTask(Task task)
+void DownloadManager::addTask(Task* task)
 {
-    connect(  task, SIGNAL(taskStatusChanged(Task*, Chunk*, Chunk::Status)),
+    if(tasks.contains(task))
+    {
+        return;
+    }
+
+    connect(&task, SIGNAL(taskStatusChanged(Task*, Chunk*, Chunk::Status)),
             this, SLOT(taskStatusChanged(Task*, Chunk*, Chunk::Status)));
-    connect( task, SIGNAL(chunkChanged(Task*)),
+    connect(&task, SIGNAL(chunkChanged(Task*)),
             this, SLOT(chunkChanged(Task*)));
 
     tasks.append(task);
@@ -25,7 +30,7 @@ void DownloadManager::taskStatusChanged(Task *task)
     if(task->getTaskStatus() == Task::DOWNLOADING)
     {
         this->startDownloading(task);
-    } else if(task->getTaskStatus() == Task::STOPPED)
+    } else
     {
         tasks.removeOne(task);
     }
@@ -38,7 +43,7 @@ void DownloadManager::chunkChanged(Task *task, Chunk *chunk, Chunk::Status oldSt
 
 void DownloadManager::startDownloading(Task *task)
 {
-    QList<incorrectChunkInfo> badChunksSpaces = optimizeChunks(task);
+    QList<BadChunksSpace> badChunksSpaces = optimizeChunks(task);
     QList<QUrl> url = task.metadataFile()->getMirrorList();
     int position = badChunksSpace.firstIncorrectChunk->possition();
     quint64 chunksize = task.metadataFile()->getFilesize();
@@ -52,7 +57,7 @@ void DownloadManager::startDownloading(Task *task)
     }
 }
 
-QList<incorrectChunkInfo> DownloadManager::optimizeChunks(Task &task)
+QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
 {
     int sizeOfCorruption = 0;
     QList<incorrectChunkInfo> badChunksSpaces;
