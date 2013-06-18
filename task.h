@@ -5,7 +5,13 @@
 #include <QFile>
 #include <QVector>
 #include <QThread>
+<<<<<<< HEAD
 class Task;
+=======
+
+class Task;
+
+>>>>>>> 26316550b60fcb44492ec06a851f625078eefea2
 #include <metadatafile.h>
 #include <downloadmanager.h>
 #include <chunk.h>
