@@ -36,7 +36,7 @@ public:
      */
     void checkChunks();
     const QVector<Chunk*> getChunks();
-    void changeChunkStatus(const Chunk& chunk, Chunk::Status status);
+    void changeChunkStatus(Chunk& chunk, Chunk::Status status);
     TaskStatus getTaskStatus();
 
     void start();
@@ -55,7 +55,7 @@ protected:
     int tchunksMissing = 0;
 
     void setProgress(int progress);
-    quint64 generateCheckSum();
+    //quint64 generateCheckSum();
     
 signals:
     void chunkChanged(Task* task, Chunk* chunk, Chunk::Status oldStatus);

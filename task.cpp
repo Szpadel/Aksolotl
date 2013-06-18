@@ -97,20 +97,22 @@ const QVector<Chunk*> Task::getChunks()
     return chunks;
 }
 
-void Task::changeChunkStatus(const Chunk& chunk, Chunk::Status status)
+void Task::changeChunkStatus(Chunk& chunk, Chunk::Status status)
 {
     chunk.setStatus(status);
 }
 
-TaskStatus Task::getTaskStatus()
+Task::TaskStatus Task::getTaskStatus()
 {
     return taskStatus;
 }
 
 void Task::start()
 {
-    if(TaskStatus == CHECKING){
-        DownloadManager.addTask(new Task(DownloadManager, metaFile, parent));
+    //sprawdzamy plik chunk czy na unknown i checksum
+    //
+    if(taskStatus == CHECKING){
+        downloadManager->addTask(this);
     }
     emit taskStatusChanged(this);
 }
@@ -125,7 +127,7 @@ void Task::setProgress(int progress)
 {
     this->tprogress = progress;
 }
-
+/*
 quint64 Task::generateCheckSum()
 {
     quint64 chunkSum = 0;
@@ -136,3 +138,4 @@ quint64 Task::generateCheckSum()
     }
     return chunkSum;
 }
+*/
