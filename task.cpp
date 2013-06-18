@@ -6,9 +6,9 @@ Task::Task(DownloadManager *dm, MetadataFile * metadataFile, QObject *parent) :
     downloadManager = dm;
     metaFile = metadataFile;
 
-    chunks.resize(metaFile->chunksChecksum.size());
+    chunks.resize(metaFile->getChecksumList().size());
     int pos = 0;
-    Q_FOREACH(quint16 checksum, metaFile->chunksChecksum) {
+    Q_FOREACH(quint16 checksum, metaFile->getChecksumList()) {
         chunks.replace(pos, new Chunk(pos,checksum, this));
         pos++;
     }
