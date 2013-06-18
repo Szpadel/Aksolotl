@@ -3,8 +3,8 @@
 Chunk::Chunk(int possition, quint16 checksum, QObject *parent) :
     QObject(parent)
 {
-    this->possition = possition;
-    this->checksum = checksum;
+    this->pos = possition;
+    this->cs = checksum;
 }
 
 Status Chunk::getStatus()
@@ -19,10 +19,10 @@ void Chunk::setStatus(Status status)
 
 quint16 Chunk::checksum()
 {
-    return checksum;
+    return cs;
 }
 
 int Chunk::possition()
 {
-    return possition;
+    return pos;
 }

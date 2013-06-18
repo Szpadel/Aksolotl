@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QList>
-
+class DownloadManager;
 #include <task.h>
 #include <chunk.h>
 

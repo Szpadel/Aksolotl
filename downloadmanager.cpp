@@ -92,9 +92,9 @@ QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
             }
             else
             {
-                /*badChunkSpace->fileDownloader = new FileDownloader;
+                badChunkSpace->fileDownloader = new FileDownloader;
                 connect(badChunkSpace->fileDownloader,SIGNAL(chunkDownloaded(QByteArray)),
-                        this,chunkDownloaded(QByteArray));*/
+                        this, chunkDownloaded(QByteArray));
 
                 badChunkSpace->task=task;
                 badChunkSpace->incorrectChunks.push_back(&chunk);
