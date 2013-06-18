@@ -21,25 +21,25 @@ MetadataFile* Task::metadataFile()
 
 int Task::progress()
 {
-    return progress;
+    return tprogress;
 }
 
 int Task::chunksOk()
 {
-    return chunksOk;
+    return tchunksOk;
 }
 
 int Task::chunksCorrupted()
 {
-    return chunksCorrupted;
+    return tchunksCorrupted;
 }
 
 int Task::chunksMissing()
 {
-    return chunksMissing;
+    return tchunksMissing;
 }
 
-QString Task::origFileLocation()
+QString Task::getOrigFileLocation()
 {
     return origFile.fileName();
 }
@@ -50,17 +50,17 @@ void Task::setOrigFileLocation(QString location)
         origFile.close();
     }
 
-    progress = 0;
-    chunksCorrupted = 0;
-    chunksMissing = 0;
-    chunksOk = 0;
+    tprogress = 0;
+    tchunksCorrupted = 0;
+    tchunksMissing = 0;
+    tchunksOk = 0;
 
     origFile.setFileName(location);
     origFile.open(QIODevice::ReadWrite);
     taskStatus = CHECKING;
 
-    Q_FOREACH(Chunk chunk, chunks){
-        chunk.setStatus(Chunk::UNKNOWN);
+    Q_FOREACH(Chunk* chunk, chunks){
+        chunk->setStatus(Chunk::UNKNOWN);
     }
 }
 
@@ -69,13 +69,13 @@ void Task::checkChunks()
     moveToThread(&thread);
     quint64 chunkSize = metaFile->getChunkSize();
     Q_FOREACH(Chunk* chunk, chunks){
-        progress = chunk->checksum()/chunkSize*100;
-        emit progressChanged(progress);
+        tprogress = chunk->checksum()/chunkSize*100;
+        emit progressChanged(tprogress);
 
         if(chunk->checksum() == chunkSize){
-            chunksOk++;
-            chunksCorrupted = 0;
-            chunksMissing = 0;
+            tchunksOk++;
+            tchunksCorrupted = 0;
+            tchunksMissing = 0;
         }
 
         bool isExists = origFile.seek(chunk->possition()*chunkSize);
@@ -92,7 +92,7 @@ void Task::checkChunks()
     }
 }
 
-QVector<Chunk> Task::getChunks()
+const QVector<Chunk*> Task::getChunks()
 {
     return chunks;
 }
@@ -123,7 +123,7 @@ void Task::stop()
 
 void Task::setProgress(int progress)
 {
-    this->progress = progress;
+    this->tprogress = progress;
 }
 
 quint64 Task::generateCheckSum()

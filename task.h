@@ -37,7 +37,7 @@ public:
      * @brief checkChunks wymaga aby plik byl wczesniej otwarty
      */
     void checkChunks();
-    const QVector<Chunk> getChunks();
+    const QVector<Chunk*> getChunks();
     void changeChunkStatus(const Chunk& chunk, Chunk::Status status);
     TaskStatus getTaskStatus();
 
@@ -51,10 +51,10 @@ protected:
     QVector<Chunk*> chunks;
     TaskStatus taskStatus;
     QThread thread;
-    int progress = 0;
-    int chunksOk = 0;
-    int chunksCorrupted = 0;
-    int chunksMissing = 0;
+    int tprogress = 0;
+    int tchunksOk = 0;
+    int tchunksCorrupted = 0;
+    int tchunksMissing = 0;
 
     void setProgress(int progress);
     quint64 generateCheckSum();
