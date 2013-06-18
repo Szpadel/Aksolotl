@@ -5,7 +5,7 @@ HttpDownloader::HttpDownloader(QNetworkAccessManager *accessManager, QObject *pa
 {
 }
 
-bool HttpDownloader::downloadFile(QUrl url, quint64 start, quint64 size, int chunkSize)
+bool HttpDownloader::downloadFile(QUrl url, quint64 start, quint64 size, int chunkSize, void* ptr)
 {
     if(chunkSize == 0)
     {
@@ -17,6 +17,12 @@ bool HttpDownloader::downloadFile(QUrl url, quint64 start, quint64 size, int chu
     }
 
     downloading = true;
+    stopping = false;
+
+    if(thread != NULL) {
+        moveToThread(thread);
+    }
+
 
     QNetworkRequest request;
     QNetworkReply *reply;
@@ -47,10 +53,15 @@ bool HttpDownloader::downloadFile(QUrl url, quint64 start, quint64 size, int chu
     bool isEndOfFile = false;
     while(reply->waitForReadyRead(10000) && ! isEndOfFile)
     {
+        if(stopping) {
+            reply->abort();
+            downloading = false;
+            return false;
+        }
         data.append(reply->readAll());
         while(! isEndOfFile && ( ( data.size() >= chunkSize && chunkSize > 0) || reply->isFinished() ) ){
             QByteArray chunk(data.mid(0,chunkSize));
-            emit chunkDownloaded(chunk);
+            emit chunkDownloaded(chunk, ptr);
             if(reply->isFinished()){
                 isEndOfFile = true;
                 break;
@@ -82,4 +93,9 @@ quint64 HttpDownloader::checkFileSize(QUrl url)
 bool HttpDownloader::isDownloading()
 {
     return downloading;
+}
+
+void HttpDownloader::cancelDownload()
+{
+    stopping = true;
 }

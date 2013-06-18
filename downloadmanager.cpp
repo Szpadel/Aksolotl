@@ -3,7 +3,7 @@
 DownloadManager::DownloadManager(QObject *parent) :
     QObject(parent)
 {
-
+    qNetworkAccessManager = new QNetworkAccessManager(this);
 }
 
 void DownloadManager::addTask(Task* task)
@@ -16,7 +16,13 @@ void DownloadManager::addTask(Task* task)
     connect(task, SIGNAL(chunkChanged(Task*,Chunk*,Chunk::Status)),
             this, SLOT(chunkChanged(Task*,Chunk*,Chunk::Status)));
 
-    tasks.append(task);
+    tasks.insert(task, optimizeChunks(task));
+    nextMirror.insert(task, task->metadataFile()->getMirrorList().begin());
+    QList<QThread*> taskthreads;
+    for(int a = 0; a < 4; a++) {
+        taskthreads.append(new QThread());
+    }
+    threads.insert(task, taskthreads);
 
     if(task->getTaskStatus() == Task::DOWNLOADING)
     {
@@ -28,79 +34,112 @@ void DownloadManager::taskStatusChanged(Task &task)
     if(task.getTaskStatus() == Task::DOWNLOADING)
     {
         this->startDownloading(&task);
-    } else
-    {
-        disconnect(&task, SIGNAL(chunkChanged(Task*,Chunk*,Chunk::Status)));
-        tasks.removeOne(&task);
     }
+    // TODO: zatrzymywanie zadan
 }
 
 void DownloadManager::chunkChanged(Task *task, Chunk *chunk, Chunk::Status oldStatus)
 {
-    if(chunk->getStatus() == Chunk::OK)
-    {
-        //((BadChunksSpace*)badChunksSpace)->task-> chunk sie poprawil
-    //    ((BadChunksSpace*)badChunksSpace)->incorrectChunks.removeOne(&chunk);
-    }
+
 }
 
 void DownloadManager::chunkDownloaded(QByteArray chunkData, void *badChunksSpace)
 {
-    Chunk* downloadedChunk = ((BadChunksSpace*)badChunksSpace)->incorrectChunks.at(0);
-    if(downloadedChunk->checksum() == qChecksum(chunkData,chunkData.size()))
-    {
-        // TODO: WPISAĆ NAZWĘ FUNKCJI
-        //((BadChunksSpace*)badChunksSpace)->task->dupujDane(chunkData);
-    }
+    BadChunksSpace* bcs = (BadChunksSpace*) badChunksSpace;
+    if(qChecksum(chunkData, chunkData.size()) != bcs->incorrectChunks.first()->checksum()) {
+        bcs->fileDownloader->cancelDownload();
+        startDownloader(bcs);
+    }else {
+        bcs->task->writeCorrectData(bcs->incorrectChunks.first(), chunkData);
+        bcs->incorrectChunks.pop_front();
 
+        if(bcs->incorrectChunks.size() == 0) {
+            delete bcs->fileDownloader;
+            Task *t = bcs->task;
+            (*tasks.find(t)).removeAll((*bcs));
+            delete bcs;
+            startNextBCS(t);
+        }
+    }
+}
+
+bool DownloadManager::startDownloader(BadChunksSpace *bcs)
+{
+    if(bcs->fileDownloader == NULL) {
+        QThread* th = NULL;
+        Q_FOREACH(QThread* thread, threads.value(bcs->task)) {
+            if(! thread->isRunning()) {
+                th = thread;
+                break;
+            }
+        }
+        if(th == NULL) {
+            return false;
+        }
+
+        bcs->fileDownloader = new HttpDownloader(qNetworkAccessManager, this);
+        bcs->fileDownloader->setThread(th);
+    }
+    QList<QUrl>::const_iterator mirror = nextMirror.value(bcs->task);
+    quint64 chunksize = bcs->task->metadataFile()->getChunkSize();
+
+    connect(bcs->fileDownloader, SIGNAL(chunkDownloaded(QByteArray,void*)),
+            this, SLOT(chunkDownloaded(QByteArray,void*)));
+
+    bcs->fileDownloader->downloadFile(*mirror,
+                                      bcs->incorrectChunks.first()->possition() * chunksize,
+                                      bcs->incorrectChunks.size() * chunksize,
+                                      chunksize,
+                                      bcs
+                                      );
+
+    if(mirror == bcs->task->metadataFile()->getMirrorList().end()) {
+        nextMirror.insert(bcs->task, bcs->task->metadataFile()->getMirrorList().begin());
+    }else {
+        nextMirror.insert(bcs->task, ++mirror);
+    }
+    return true;
+}
+
+void DownloadManager::startNextBCS(Task *task)
+{
+    Q_FOREACH(BadChunksSpace bcs, tasks.value(task)) {
+        if(bcs.fileDownloader == NULL) {
+            if( ! startDownloader(&bcs)) {
+                return;
+            }
+        }
+    }
 }
 
 void DownloadManager::startDownloading(Task *task)
 {
-    QList<BadChunksSpace> badChunksSpaces = optimizeChunks(*task);
-
-    foreach (BadChunksSpace badChunksSpace, badChunksSpaces) {
-        QList<QUrl> url = badChunksSpace.task->metadataFile()->getMirrorList();
-
-        int position = badChunksSpace.incorrectChunks.at(0)->possition();
-        int incorrectChunks = badChunksSpace.incorrectChunks.size();
-        quint64 chunksize = badChunksSpace.task->metadataFile()->getFilesize();
-
-        badChunksSpace.fileDownloader->downloadFile(url.at(0),
-                                                    position*chunksize,
-                                                    incorrectChunks*chunksize,
-                                                    chunksize);
+    for(int a = 0; a < 4; a++) {
+        startNextBCS(task);
     }
 }
 
-QList<DownloadManager::BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
+QList<DownloadManager::BadChunksSpace> DownloadManager::optimizeChunks(Task *task)
 {
     QList<BadChunksSpace> badChunksSpaces;
 
-    Chunk *lastChunk = NULL;
-    BadChunksSpace *badChunksSpace = NULL;
+    BadChunksSpace* bcs = NULL;
 
-    foreach (Chunk *chunk, task.getChunks()) {
-
-        if(lastChunk != NULL && chunk->getStatus() != Chunk::OK)
-        {
-            if(lastChunk->getStatus() != Chunk::OK)
-            {
-                badChunksSpace->incorrectChunks.push_back(chunk);
+    Q_FOREACH(Chunk* chunk, task->getChunks()) {
+        if(chunk->getStatus() != Chunk::OK) {
+            if(bcs == NULL) {
+                bcs = new BadChunksSpace();
+                bcs->task = task;
             }
-            else
-            {
-                badChunksSpace->fileDownloader = new HttpDownloader(&qNetworkAccessManager);
-                connect(badChunksSpace->fileDownloader,SIGNAL(chunkDownloaded(QByteArray)),
-                        this, SLOT(chunkDownloaded(QByteArray,void*)));
-
-                badChunksSpace->task=&task;
-                badChunksSpace->incorrectChunks.push_back(chunk);
-
-                badChunksSpaces.push_back(*badChunksSpace);
-                badChunksSpace = new BadChunksSpace();
-            }
+            bcs->incorrectChunks.append(chunk);
+        }else {
+            badChunksSpaces.append(*bcs);
+            bcs = NULL;
         }
     }
+    if(bcs != NULL) {
+        badChunksSpaces.append(*bcs);
+    }
+
     return badChunksSpaces;
 }

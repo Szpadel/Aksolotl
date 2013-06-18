@@ -6,6 +6,7 @@
 #include <QNetworkReply>
 #include <QUrl>
 #include <QString>
+#include <QThread>
 
 class FileDownloader : public QObject
 {
@@ -26,7 +27,11 @@ public:
         this->accessManager = accessManager;
     }
 
-    virtual bool downloadFile(QUrl url, quint64 start = 0, quint64 size = 0, int chunkSize = 0) = 0;
+    void setThread(QThread* th) {
+        thread = th;
+    }
+
+    virtual bool downloadFile(QUrl url, quint64 start = 0, quint64 size = 0, int chunkSize = 0, void* ptr = 0) = 0;
     virtual quint64 checkFileSize(QUrl url) = 0;
 
     ErrorType getError()
@@ -40,14 +45,15 @@ public:
 protected:
     QNetworkAccessManager *accessManager;
     ErrorType errorStatus = NO_ERROR;
+    QThread* thread = NULL;
     
 signals:
-    void chunkDownloaded(QByteArray chunkData);
+    void chunkDownloaded(QByteArray chunkData, void* ptr);
     void fileDownloaded();
     void error(ErrorType e, QString description);
 
 public slots:
-    //virtual void cancelDownload() = 0;
+    virtual void cancelDownload() = 0;
     
 };
 

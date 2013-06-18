@@ -33,6 +33,10 @@ EditMetadataFileWindow::EditMetadataFileWindow(MetadataFile *metafile, QWidget *
             this, SLOT(close()));
     connect(ui->actionClose, SIGNAL(triggered()),
             this, SLOT(close()));
+    connect(ui->add, SIGNAL(clicked()),
+            this, SLOT(addMirror()));
+    connect(ui->remove, SIGNAL(clicked()),
+            this, SLOT(removeMirror()));
 
     ui->filesize->setValidator(new QRegExpValidator(Helpers::digitalOnlyRegExp()));
     onChunkSizeChanged();
@@ -104,4 +108,19 @@ void EditMetadataFileWindow::save(bool saveAs)
 
     metadataFile->save(saveFilename);
     this->close();
+}
+
+
+void EditMetadataFileWindow::removeMirror()
+{
+    ui->tableWidget->removeRow(ui->tableWidget->currentRow());
+}
+
+
+void EditMetadataFileWindow::addMirror()
+{
+    ui->tableWidget->insertRow(0);
+    ui->tableWidget->item(0, 0)
+            ->setText(
+                QInputDialog::getText(this, "Mirror URL", "URL:"));
 }

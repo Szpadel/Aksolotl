@@ -15,9 +15,12 @@ public:
 
     bool downloading;
 
-    bool downloadFile(QUrl url, quint64 start = 0, quint64 size = 0, int chunkSize = -1);
+    bool downloadFile(QUrl url, quint64 start = 0, quint64 size = 0, int chunkSize = -1, void* ptr = 0);
     quint64 checkFileSize(QUrl url);
     bool isDownloading();
+
+protected:
+    bool stopping = false;
 
 public slots:
     void cancelDownload();

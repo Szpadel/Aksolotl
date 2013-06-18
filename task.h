@@ -40,6 +40,8 @@ public:
     void changeChunkStatus(Chunk& chunk, Chunk::Status status);
     TaskStatus getTaskStatus();
 
+    void writeCorrectData(Chunk* chunk, QByteArray data);
+
     void setTaskStatus(TaskStatus status);
     void start();
     void stop();

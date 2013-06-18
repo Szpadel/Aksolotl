@@ -10,6 +10,7 @@
 #include <QFileInfo>
 #include <QAbstractButton>
 #include <QDebug>
+#include <QInputDialog>
 
 #include <metadatafile.h>
 #include <helpers.h>
@@ -39,6 +40,8 @@ private slots:
     void onChunkSizeChanged();
     void updateHumanFilesize();
     void save(bool saveAs = false);
+    void addMirror();
+    void removeMirror();
 };
 
 #endif // EDITMETADATAFILEWINDOW_H

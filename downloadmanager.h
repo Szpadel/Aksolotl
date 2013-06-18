@@ -3,7 +3,11 @@
 
 #include <QObject>
 #include <QList>
+#include <QMap>
+#include <QThread>
+
 class DownloadManager;
+
 #include <task.h>
 #include <chunk.h>
 #include <httpdownloader.h>
@@ -19,6 +23,9 @@ public:
     void addTask(Task *task);
     QList<Task*> getTasks();
 
+    void startDownloading(Task *task);
+    void stopDownloading(Task *task);
+    void pauseDownloading(Task *task);
 
 protected:
     struct BadChunksSpace
@@ -28,15 +35,16 @@ protected:
         Task* task = NULL;
     };
 
-    QNetworkAccessManager qNetworkAccessManager;
-    QList<Task*> tasks;
-    QList<BadChunksSpace> optimizeChunks(Task &task);
+    QMap<Task*, QList<BadChunksSpace>> tasks;
+    QMap<Task*, QList<QUrl>::const_iterator> nextMirror;
+    QMap<Task*, QList<QThread*>> threads;
+
+    QNetworkAccessManager* qNetworkAccessManager;
     QList<FileDownloader> fileDownloaders;
 
-    void startDownloading(Task *task);
-    void stopDownloading(Task *task);
-    void pauseDownloading(Task *task);
-
+    QList<BadChunksSpace> optimizeChunks(Task *task);
+    bool startDownloader(BadChunksSpace* bcs);
+    void startNextBCS(Task* task);
 
 signals:
     

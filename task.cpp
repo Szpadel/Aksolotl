@@ -64,31 +64,47 @@ void Task::setOrigFileLocation(QString location)
     }
 }
 
+void Task::writeCorrectData(Chunk *chunk, QByteArray data)
+{
+    origFile.seek(chunk->possition() * metadataFile()->getFilesize());
+    origFile.write(data);
+}
+
 void Task::checkChunks()
 {
     moveToThread(&thread);
     quint64 chunkSize = metaFile->getChunkSize();
-    Q_FOREACH(Chunk* chunk, chunks){
-        tprogress = chunk->checksum()/chunkSize*100;
-        emit progressChanged(tprogress);
+    int oldProgress = 0;
+    setProgress(0);
 
-        if(chunk->checksum() == chunkSize){
-            tchunksOk++;
-            tchunksCorrupted = 0;
-            tchunksMissing = 0;
-        }
+    Q_FOREACH(Chunk* chunk, chunks){
 
         bool isExists = origFile.seek(chunk->possition()*chunkSize);
         if(! isExists) {
             chunk->setStatus(Chunk::MISSING);
+            tchunksMissing++;
         }else {
             QByteArray data = origFile.read(chunkSize);
             if(qChecksum(data, data.size()) != chunk->checksum()) {
                 chunk->setStatus(Chunk::CORRUPTED);
+                tchunksCorrupted++;
             } else {
                 chunk->setStatus(Chunk::OK);
+                tchunksOk++;
             }
         }
+
+        // zapobieganie szybkiemu emitowaniu sygnalow
+        int progress = chunk->possition()*100/chunks.size();
+        if(progress != oldProgress) {
+            setProgress(progress);
+            oldProgress = progress;
+        }
+    }
+    emit taskStatusChanged(this);
+    if(tchunksCorrupted != 0 || tchunksMissing != 0) {
+        setTaskStatus(DOWNLOADING);
+        downloadManager->addTask(this);
     }
 }
 
@@ -110,22 +126,7 @@ Task::TaskStatus Task::getTaskStatus()
 void Task::start()
 {
     setTaskStatus(CHECKING);
-
-    Q_FOREACH(Chunk* chunk, chunks){
-        if(taskStatus == CHECKING){
-            if(chunk->checksum() == metaFile->getChunkSize()){
-                tchunksOk++;
-                setTaskStatus(DONE);
-            } else if(chunk->checksum() < metaFile->getChunkSize()) {
-                tchunksMissing++;
-                setTaskStatus(DOWNLOADING);
-                downloadManager->addTask(this);
-            } else {
-                tchunksCorrupted++;
-                setTaskStatus(ERROR);
-            }
-        }
-    }
+    checkChunks();
 }
 
 void Task::stop()
@@ -136,6 +137,7 @@ void Task::stop()
 void Task::setProgress(int progress)
 {
     this->tprogress = progress;
+    emit progressChanged(progress);
 }
 
 void Task::setTaskStatus(TaskStatus status){
