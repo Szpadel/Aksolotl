@@ -28,6 +28,7 @@ protected:
         Task* task = NULL;
     };
 
+    QNetworkAccessManager qNetworkAccessManager;
     QList<Task*> tasks;
     QList<BadChunksSpace> optimizeChunks(Task &task);
     QList<FileDownloader> fileDownloaders;
