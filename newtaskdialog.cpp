@@ -9,9 +9,9 @@ NewTaskDialog::NewTaskDialog(Task *task, QWidget *parent) :
 
     this->task = task;
 
-    connect(ui->buttonBox, SIGNAL(acceptedButton()),
+    connect(ui->buttonBox, SIGNAL(accepted()),
             this, SLOT(acceptedButton()));
-    connect(ui->buttonBox, SIGNAL(acceptedButton()),
+    connect(ui->buttonBox, SIGNAL(rejected()),
             this, SLOT(rejectedButton()));
     connect(ui->selectSaveFileButton, SIGNAL(clicked()),
             this, SLOT(openFile()));

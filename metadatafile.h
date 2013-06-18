@@ -102,7 +102,7 @@ protected:
 
     QFile metadataFile;
     QByteArray rawData;
-    qint32 chunksize;
+    quint64 chunksize;
     ErrorReason error = NO_ERROR;
     FileStatus fileStatus = CLOSED;
 

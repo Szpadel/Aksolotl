@@ -461,6 +461,8 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
    </attribute>
    <addaction name="actionCreate_metadata_file"/>
    <addaction name="actionOpen_metadata_file"/>
+   <addaction name="actionStart_Task"/>
+   <addaction name="actionStop_Task"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionOpen_metadata_file">
@@ -479,6 +481,24 @@ Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor 
    </property>
    <property name="text">
     <string>Create metadata file</string>
+   </property>
+  </action>
+  <action name="actionStart_Task">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons-32/icons/media-playback-start.png</normaloff>:/icons-32/icons/media-playback-start.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start Task</string>
+   </property>
+  </action>
+  <action name="actionStop_Task">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons-32/icons/media-playback-stop.png</normaloff>:/icons-32/icons/media-playback-stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stop Task</string>
    </property>
   </action>
  </widget>
