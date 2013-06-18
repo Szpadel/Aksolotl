@@ -13,38 +13,35 @@ void DownloadManager::addTask(Task* task)
         return;
     }
 
-    connect(&task, SIGNAL(taskStatusChanged(Task*, Chunk*, Chunk::Status)),
-            this, SLOT(taskStatusChanged(Task*, Chunk*, Chunk::Status)));
-    connect(&task, SIGNAL(chunkChanged(Task*)),
-            this, SLOT(chunkChanged(Task*)));
+    connect(task, SIGNAL(chunkChanged(Task*,Chunk*,Chunk::Status)),
+            this, SLOT(chunkChanged(Task*,Chunk*,Chunk::Status)));
 
     tasks.append(task);
 
-    if(task.getTaskStatus() == Task::DOWNLOADING)
+    if(task->getTaskStatus() == Task::DOWNLOADING)
     {
         this->startDownloading(task);
     }
 }
-void DownloadManager::taskStatusChanged(Task *task)
+void DownloadManager::taskStatusChanged(Task &task)
 {
-    if(task->getTaskStatus() == Task::DOWNLOADING)
+    if(task.getTaskStatus() == Task::DOWNLOADING)
     {
-        this->startDownloading(task);
+        this->startDownloading(&task);
     } else
     {
-        disconnect(task, SIGNAL(taskStatusChanged(Task*, Chunk*, Chunk::Status)));
-        disconnect(task, SIGNAL(chunkChanged(Task*)));
-        tasks.removeOne(task);
+        disconnect(&task, SIGNAL(chunkChanged(Task*,Chunk*,Chunk::Status)));
+        tasks.removeOne(&task);
     }
 }
 
 void DownloadManager::chunkChanged(Task *task, Chunk *chunk, Chunk::Status oldStatus)
 {
-    //if(chunk->getStatus() == Chunk::OK)
-    //{
+    if(chunk->getStatus() == Chunk::OK)
+    {
         //((BadChunksSpace*)badChunksSpace)->task-> chunk sie poprawil
     //    ((BadChunksSpace*)badChunksSpace)->incorrectChunks.removeOne(&chunk);
-    //}
+    }
 }
 
 void DownloadManager::chunkDownloaded(QByteArray chunkData, void *badChunksSpace)
@@ -53,17 +50,18 @@ void DownloadManager::chunkDownloaded(QByteArray chunkData, void *badChunksSpace
     if(downloadedChunk->checksum() == qChecksum(chunkData,chunkData.size()))
     {
         // TODO: WPISAĆ NAZWĘ FUNKCJI
-        ((BadChunksSpace*)badChunksSpace)->task->dupujDane(chunkData);
+        //((BadChunksSpace*)badChunksSpace)->task->dupujDane(chunkData);
     }
 
 }
 
 void DownloadManager::startDownloading(Task *task)
 {
-    QList<BadChunksSpace> badChunksSpaces = optimizeChunks(task);
+    QList<BadChunksSpace> badChunksSpaces = optimizeChunks(*task);
 
     foreach (BadChunksSpace badChunksSpace, badChunksSpaces) {
         QList<QUrl> url = badChunksSpace.task->metadataFile()->getMirrorList();
+
         int position = badChunksSpace.incorrectChunks.at(0)->possition();
         int incorrectChunks = badChunksSpace.incorrectChunks.size();
         quint64 chunksize = badChunksSpace.task->metadataFile()->getFilesize();
@@ -75,12 +73,12 @@ void DownloadManager::startDownloading(Task *task)
     }
 }
 
-QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
+QList<DownloadManager::BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
 {
     QList<BadChunksSpace> badChunksSpaces;
 
     Chunk *lastChunk = NULL;
-    BadChunksSpace *badChunkSpace;
+    BadChunksSpace *badChunksSpace = NULL;
 
     foreach (Chunk *chunk, task.getChunks()) {
 
@@ -88,25 +86,20 @@ QList<BadChunksSpace> DownloadManager::optimizeChunks(Task &task)
         {
             if(lastChunk->getStatus() != Chunk::OK)
             {
-                badChunkSpace->incorrectChunks.push_back(&chunk);
+                badChunksSpace->incorrectChunks.push_back(chunk);
             }
             else
             {
-                badChunkSpace->fileDownloader = new FileDownloader;
-                connect(badChunkSpace->fileDownloader,SIGNAL(chunkDownloaded(QByteArray)),
-                        this, chunkDownloaded(QByteArray));
+                badChunksSpace->fileDownloader = new HttpDownloader(&qNetworkAccessManager);
+                connect(badChunksSpace->fileDownloader,SIGNAL(chunkDownloaded(QByteArray)),
+                        this, SLOT(chunkDownloaded(QByteArray,void*)));
 
-                badChunkSpace->task=task;
-                badChunkSpace->incorrectChunks.push_back(&chunk);
+                badChunksSpace->task=&task;
+                badChunksSpace->incorrectChunks.push_back(chunk);
 
-                badChunksSpaces.push_back(badChunkSpace);
-                badChunkSpace = new badChunkSpace;
+                badChunksSpaces.push_back(*badChunksSpace);
+                badChunksSpace = new BadChunksSpace();
             }
-            isLastChankCorrect = false;
-        }
-        else
-        {
-            isLastChankCorrect = true;
         }
     }
     return badChunksSpaces;

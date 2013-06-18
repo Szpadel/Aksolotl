@@ -6,6 +6,7 @@
 class DownloadManager;
 #include <task.h>
 #include <chunk.h>
+#include <httpdownloader.h>
 
 #include <filedownloader.h>
 
@@ -27,8 +28,9 @@ protected:
         Task* task = NULL;
     };
 
+    QNetworkAccessManager qNetworkAccessManager;
     QList<Task*> tasks;
-    QList<BadChunksSpace> optimizeChunks(Task *task);
+    QList<BadChunksSpace> optimizeChunks(Task &task);
     QList<FileDownloader> fileDownloaders;
 
     void startDownloading(Task *task);
