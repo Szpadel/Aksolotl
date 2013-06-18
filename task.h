@@ -5,9 +5,7 @@
 #include <QFile>
 #include <QVector>
 #include <QThread>
-
 class Task;
-
 #include <metadatafile.h>
 #include <downloadmanager.h>
 #include <chunk.h>

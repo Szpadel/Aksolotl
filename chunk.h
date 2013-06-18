@@ -22,8 +22,8 @@ public:
     int possition();
 
 protected:
-    quint16 checksum;
-    int possition;
+    quint16 cs;
+    int pos;
     Status status = UNKNOWN;
 
     
