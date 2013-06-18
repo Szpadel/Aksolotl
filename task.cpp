@@ -6,9 +6,9 @@ Task::Task(DownloadManager *dm, MetadataFile * metadataFile, QObject *parent) :
     downloadManager = dm;
     metaFile = metadataFile;
 
-    chunks.resize(metaFile->chunksChecksum.size());
+    chunks.resize(metaFile->getChecksumList().size());
     int pos = 0;
-    Q_FOREACH(quint16 checksum, metaFile->chunksChecksum) {
+    Q_FOREACH(quint16 checksum, metaFile->getChecksumList()) {
         chunks.replace(pos, new Chunk(pos,checksum, this));
         pos++;
     }
@@ -21,25 +21,25 @@ MetadataFile* Task::metadataFile()
 
 int Task::progress()
 {
-    return progress;
+    return tprogress;
 }
 
 int Task::chunksOk()
 {
-    return chunksOk;
+    return tchunksOk;
 }
 
 int Task::chunksCorrupted()
 {
-    return chunksCorrupted;
+    return tchunksCorrupted;
 }
 
 int Task::chunksMissing()
 {
-    return chunksMissing;
+    return tchunksMissing;
 }
 
-QString Task::origFileLocation()
+QString Task::getOrigFileLocation()
 {
     return origFile.fileName();
 }
@@ -50,16 +50,17 @@ void Task::setOrigFileLocation(QString location)
         origFile.close();
     }
 
-    progress = 0;
-    chunksCorrupted = 0;
-    chunksMissing = 0;
-    chunksOk = 0;
+    tprogress = 0;
+    tchunksCorrupted = 0;
+    tchunksMissing = 0;
+    tchunksOk = 0;
 
     origFile.setFileName(location);
     origFile.open(QIODevice::ReadWrite);
+    taskStatus = CHECKING;
 
-    Q_FOREACH(Chunk chunk, chunks){
-        chunk.setStatus(Chunk::UNKNOWN);
+    Q_FOREACH(Chunk* chunk, chunks){
+        chunk->setStatus(Chunk::UNKNOWN);
     }
 }
 
@@ -68,7 +69,15 @@ void Task::checkChunks()
     moveToThread(&thread);
     quint64 chunkSize = metaFile->getChunkSize();
     Q_FOREACH(Chunk* chunk, chunks){
-        progress = chunk->checksum()/chunkSize*100;
+        tprogress = chunk->checksum()/chunkSize*100;
+        emit progressChanged(tprogress);
+
+        if(chunk->checksum() == chunkSize){
+            tchunksOk++;
+            tchunksCorrupted = 0;
+            tchunksMissing = 0;
+        }
+
         bool isExists = origFile.seek(chunk->possition()*chunkSize);
         if(! isExists) {
             chunk->setStatus(Chunk::MISSING);
@@ -83,38 +92,42 @@ void Task::checkChunks()
     }
 }
 
-QVector<Chunk> Task::getChunks()
+const QVector<Chunk*> Task::getChunks()
 {
     return chunks;
 }
 
-void Task::changeChunkStatus(const Chunk& chunk, Chunk::Status status)
+void Task::changeChunkStatus(Chunk& chunk, Chunk::Status status)
 {
     chunk.setStatus(status);
 }
 
-TaskStatus Task::getTaskStatus()
+Task::TaskStatus Task::getTaskStatus()
 {
     return taskStatus;
 }
 
 void Task::start()
 {
-    if(Chunk::getStatus() == Chunk::OK){
-        //TO DO
+    //sprawdzamy plik chunk czy na unknown i checksum
+    //
+    if(taskStatus == CHECKING){
+        downloadManager->addTask(this);
     }
+    emit taskStatusChanged(this);
 }
 
 void Task::stop()
 {
-
+    taskStatus = STOPPED;
+    emit taskStatusChanged(this);
 }
 
 void Task::setProgress(int progress)
 {
-    this->progress = progress;
+    this->tprogress = progress;
 }
-
+/*
 quint64 Task::generateCheckSum()
 {
     quint64 chunkSum = 0;
@@ -125,3 +138,4 @@ quint64 Task::generateCheckSum()
     }
     return chunkSum;
 }
+*/

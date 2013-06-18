@@ -5,7 +5,7 @@
 #include <QFile>
 #include <QVector>
 #include <QThread>
-
+class Task;
 #include <metadatafile.h>
 #include <downloadmanager.h>
 #include <chunk.h>
@@ -35,8 +35,8 @@ public:
      * @brief checkChunks wymaga aby plik byl wczesniej otwarty
      */
     void checkChunks();
-    const QVector<Chunk> getChunks();
-    void changeChunkStatus(const Chunk& chunk, Chunk::Status status);
+    const QVector<Chunk*> getChunks();
+    void changeChunkStatus(Chunk& chunk, Chunk::Status status);
     TaskStatus getTaskStatus();
 
     void start();
@@ -49,13 +49,13 @@ protected:
     QVector<Chunk*> chunks;
     TaskStatus taskStatus;
     QThread thread;
-    int progress = 0;
-    int chunksOk = 0;
-    int chunksCorrupted = 0;
-    int chunksMissing = 0;
+    int tprogress = 0;
+    int tchunksOk = 0;
+    int tchunksCorrupted = 0;
+    int tchunksMissing = 0;
 
     void setProgress(int progress);
-    quint64 generateCheckSum();
+    //quint64 generateCheckSum();
     
 signals:
     void chunkChanged(Task* task, Chunk* chunk, Chunk::Status oldStatus);

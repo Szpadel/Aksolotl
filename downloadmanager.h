@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QList>
-
+class DownloadManager;
 #include <task.h>
 #include <chunk.h>
 
@@ -22,8 +22,9 @@ public:
 protected:
     struct BadChunksSpace
     {
-        Chunk* firstIncorrectChunk;
-        int sizeOfCorruption;
+        FileDownloader *fileDownloader;
+        QList<Chunk*> incorrectChunks;
+        Task* task = NULL;
     };
 
     QList<Task*> tasks;
@@ -40,6 +41,7 @@ signals:
 public slots:
     void taskStatusChanged(Task &task);
     void chunkChanged(Task *task, Chunk *chunk, Chunk::Status oldStatus);
+    void chunkDownloaded(QByteArray chunkData, void *badChunksSpace);
     
 };
 
