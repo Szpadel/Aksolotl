@@ -47,7 +47,7 @@ signals:
     void error(ErrorType e, QString description);
 
 public slots:
-    virtual void cancelDownload() = 0;
+    //virtual void cancelDownload() = 0;
     
 };
 
