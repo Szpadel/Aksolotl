@@ -7,7 +7,7 @@ Chunk::Chunk(int possition, quint16 checksum, QObject *parent) :
     this->cs = checksum;
 }
 
-Status Chunk::getStatus()
+Chunk::Status Chunk::getStatus()
 {
     return status;
 }
