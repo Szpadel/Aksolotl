@@ -57,6 +57,7 @@ void Task::setOrigFileLocation(QString location)
 
     origFile.setFileName(location);
     origFile.open(QIODevice::ReadWrite);
+    taskStatus = CHECKING;
 
     Q_FOREACH(Chunk chunk, chunks){
         chunk.setStatus(Chunk::UNKNOWN);
@@ -69,6 +70,14 @@ void Task::checkChunks()
     quint64 chunkSize = metaFile->getChunkSize();
     Q_FOREACH(Chunk* chunk, chunks){
         progress = chunk->checksum()/chunkSize*100;
+        emit progressChanged(progress);
+
+        if(chunk->checksum() == chunkSize){
+            chunksOk++;
+            chunksCorrupted = 0;
+            chunksMissing = 0;
+        }
+
         bool isExists = origFile.seek(chunk->possition()*chunkSize);
         if(! isExists) {
             chunk->setStatus(Chunk::MISSING);
@@ -100,14 +109,16 @@ TaskStatus Task::getTaskStatus()
 
 void Task::start()
 {
-    if(Chunk::getStatus() == Chunk::OK){
-        //TO DO
+    if(TaskStatus == CHECKING){
+        DownloadManager.addTask(new Task(DownloadManager, metaFile, parent));
     }
+    emit taskStatusChanged(this);
 }
 
 void Task::stop()
 {
-
+    taskStatus = STOPPED;
+    emit taskStatusChanged(this);
 }
 
 void Task::setProgress(int progress)
