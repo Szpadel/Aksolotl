@@ -37,11 +37,11 @@ void DownloadManager::taskStatusChanged(Task &task)
 
 void DownloadManager::chunkChanged(Task *task, Chunk *chunk, Chunk::Status oldStatus)
 {
-    //if(chunk->getStatus() == Chunk::OK)
-    //{
+    if(chunk->getStatus() == Chunk::OK)
+    {
         //((BadChunksSpace*)badChunksSpace)->task-> chunk sie poprawil
     //    ((BadChunksSpace*)badChunksSpace)->incorrectChunks.removeOne(&chunk);
-    //}
+    }
 }
 
 void DownloadManager::chunkDownloaded(QByteArray chunkData, void *badChunksSpace)
@@ -61,6 +61,7 @@ void DownloadManager::startDownloading(Task *task)
 
     foreach (BadChunksSpace badChunksSpace, badChunksSpaces) {
         QList<QUrl> url = badChunksSpace.task->metadataFile()->getMirrorList();
+
         int position = badChunksSpace.incorrectChunks.at(0)->possition();
         int incorrectChunks = badChunksSpace.incorrectChunks.size();
         quint64 chunksize = badChunksSpace.task->metadataFile()->getFilesize();
@@ -89,7 +90,7 @@ QList<DownloadManager::BadChunksSpace> DownloadManager::optimizeChunks(Task &tas
             }
             else
             {
-                badChunksSpace->fileDownloader = new HttpDownloader(new QNetworkAccessManager());
+                badChunksSpace->fileDownloader = new HttpDownloader(&qNetworkAccessManager);
                 connect(badChunksSpace->fileDownloader,SIGNAL(chunkDownloaded(QByteArray)),
                         this, SLOT(chunkDownloaded(QByteArray,void*)));
 

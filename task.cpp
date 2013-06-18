@@ -109,33 +109,36 @@ Task::TaskStatus Task::getTaskStatus()
 
 void Task::start()
 {
-    //sprawdzamy plik chunk czy na unknown i checksum
-    //
-    if(taskStatus == CHECKING){
-        downloadManager->addTask(this);
+    setTaskStatus(CHECKING);
+
+    Q_FOREACH(Chunk* chunk, chunks){
+        if(taskStatus == CHECKING){
+            if(chunk->checksum() == metaFile->getChunkSize()){
+                tchunksOk++;
+                setTaskStatus(DONE);
+            } else if(chunk->checksum() < metaFile->getChunkSize()) {
+                tchunksMissing++;
+                setTaskStatus(DOWNLOADING);
+                downloadManager->addTask(this);
+            } else {
+                tchunksCorrupted++;
+                setTaskStatus(ERROR);
+            }
+        }
     }
-    emit taskStatusChanged(this);
 }
 
 void Task::stop()
 {
-    taskStatus = STOPPED;
-    emit taskStatusChanged(this);
+    setTaskStatus(STOPPED);
 }
 
 void Task::setProgress(int progress)
 {
     this->tprogress = progress;
 }
-/*
-quint64 Task::generateCheckSum()
-{
-    quint64 chunkSum = 0;
-    if(origFile.isOpen()){
-        Q_FOREACH(Chunk* chunk, chunks){
-            chunkSum = qChecksum(chunk, metaFile->getChunkSize());
-        }
-    }
-    return chunkSum;
+
+void Task::setTaskStatus(TaskStatus status){
+    taskStatus = status;
+    emit taskStatusChanged(this);
 }
-*/

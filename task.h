@@ -18,7 +18,8 @@ public:
         STOPPED,
         DOWNLOADING,
         CHECKING,
-        ERROR
+        ERROR,
+        DONE
     };
 
     Task(DownloadManager *dm, MetadataFile* metadataFile, QObject *parent = 0);
@@ -39,6 +40,7 @@ public:
     void changeChunkStatus(Chunk& chunk, Chunk::Status status);
     TaskStatus getTaskStatus();
 
+    void setTaskStatus(TaskStatus status);
     void start();
     void stop();
 
@@ -55,7 +57,6 @@ protected:
     int tchunksMissing = 0;
 
     void setProgress(int progress);
-    //quint64 generateCheckSum();
     
 signals:
     void chunkChanged(Task* task, Chunk* chunk, Chunk::Status oldStatus);
