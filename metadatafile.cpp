@@ -305,3 +305,8 @@ void MetadataFile::removeAllChunks()
 {
     chunksChecksum.clear();
 }
+
+const QList<quint16> &MetadataFile::getChecksumList()
+{
+    return chunksChecksum;
+}

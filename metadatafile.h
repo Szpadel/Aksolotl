@@ -92,6 +92,7 @@ public:
 
     void addChunk(quint16 checksum);
     quint16 checksumAt(int i);
+    const QList<quint16> &getChecksumList();
     void removeAllChunks();
 
 
