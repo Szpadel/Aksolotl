@@ -56,24 +56,24 @@ void MainWindow::loadMetadataFile()
 void MainWindow::addTask(Task* task)
 {
     tasks.append(task);
-    QTreeWidgetItem item();
-    item.setText(0, task->getOrigFileLocation()); // filename
-    //item.setText(1, task->getTaskStatusString()); // TODO: implementacja, status
-    item.setText(2, "0%"); // progress
-    item.setText(3, Helpers::humanReadableSize(task->metadataFile()->getFilesize())); // filesize
-    item.setText(4, QString::number(task->metadataFile()->getMirrorList().size())); // mirrors
-    item.setText(5, "unknown"); // speed
-    item.setText(6, "unknown"); // eta
+    QTreeWidgetItem* item = new QTreeWidgetItem();
+    item->setText(0, task->getOrigFileLocation()); // filename
+    //item->setText(1, task->getTaskStatusString()); // TODO: implementacja, status
+    item->setText(2, "0%"); // progress
+    item->setText(3, Helpers::humanReadableSize(task->metadataFile()->getFilesize())); // filesize
+    item->setText(4, QString::number(task->metadataFile()->getMirrorList().size())); // mirrors
+    item->setText(5, "unknown"); // speed
+    item->setText(6, "unknown"); // eta
     ui->tasksTable->addTopLevelItem(item);
     connect(task, SIGNAL(taskStatusChanged(Task*)),
             this, SLOT(refreshTaskList()));
-    conect(task, SIGNAL(taskStatusChanged(Task*)),
+    connect(task, SIGNAL(taskStatusChanged(Task*)),
            this, SLOT(refreshTaskList()));
 }
 
 void MainWindow::refreshTaskList()
 {
-    QTreeWidgetItem *item = ui->tasksTable->header();
+    QTreeWidgetItem *item = ui->tasksTable->headerItem();
     Q_FOREACH(Task* task, tasks)
     {
         item->setText(0, task->getOrigFileLocation()); // filename
@@ -83,6 +83,6 @@ void MainWindow::refreshTaskList()
         item->setText(4, QString::number(task->metadataFile()->getMirrorList().size())); // mirrors
         item->setText(5, "unknown"); // speed
         item->setText(6, "unknown"); // eta
-        item = ui->tasksTable->BelowItem(item);
+        item = ui->tasksTable->itemBelow(item);
     }
 }

@@ -8,6 +8,8 @@
 
 #include <editmetadatafilewindow.h>
 #include <metadatafile.h>
+#include <newtaskdialog.h>
+#include <downloadmanager.h>
 
 namespace Ui {
 class MainWindow;
@@ -26,11 +28,16 @@ private:
 
     Ui::MainWindow *ui;
     EditMetadataFileWindow *editMetadataFileWindow = NULL;
-    QList<MetadataFile*> openedMetadataFiles;
+    QList<Task*> tasks;
+
+    DownloadManager *dm;
+    Task* selectedTask;
 
 public slots:
     void openNewMetadataFileWindow();
     void loadMetadataFile();
+    void addTask(Task* task);
+    void refreshTaskList();
 };
 
 #endif // MAINWINDOW_H
