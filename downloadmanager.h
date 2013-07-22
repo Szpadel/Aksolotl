@@ -35,14 +35,14 @@ protected:
         Task* task = NULL;
     };
 
-    QMap<Task*, QList<BadChunksSpace>> tasks;
+    QMap<Task*, QList<BadChunksSpace*>> tasks;
     QMap<Task*, QList<QUrl>::const_iterator> nextMirror;
     QMap<Task*, QList<QThread*>> threads;
 
     QNetworkAccessManager* qNetworkAccessManager;
     QList<FileDownloader> fileDownloaders;
 
-    QList<BadChunksSpace> optimizeChunks(Task *task);
+    QList<BadChunksSpace*> optimizeChunks(Task *task);
     bool startDownloader(BadChunksSpace* bcs);
     void startNextBCS(Task* task);
 

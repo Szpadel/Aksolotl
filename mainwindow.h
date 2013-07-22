@@ -6,6 +6,7 @@
 #include <QList>
 #include <QMessageBox>
 #include <QTreeWidgetItem>
+#include <QTimer>
 
 #include <editmetadatafilewindow.h>
 #include <metadatafile.h>
@@ -33,6 +34,7 @@ private:
 
     DownloadManager *dm;
     QTreeWidgetItem* selected;
+    Task* selectedTask;
 
 public slots:
     void openNewMetadataFileWindow();
@@ -40,6 +42,7 @@ public slots:
     void addTask(Task* task);
     void refreshTaskList();
     void selectTask(QTreeWidgetItem * item);
+    void startTask();
 };
 
 #endif // MAINWINDOW_H

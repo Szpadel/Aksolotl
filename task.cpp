@@ -72,7 +72,8 @@ void Task::writeCorrectData(Chunk *chunk, QByteArray data)
 
 void Task::checkChunks()
 {
-    moveToThread(&thread);
+    //thread.start();
+    //moveToThread(&thread);
     quint64 chunkSize = metaFile->getChunkSize();
     int oldProgress = 0;
     setProgress(0);
@@ -104,7 +105,9 @@ void Task::checkChunks()
     emit taskStatusChanged(this);
     if(tchunksCorrupted != 0 || tchunksMissing != 0) {
         setTaskStatus(DOWNLOADING);
-        downloadManager->addTask(this);
+        //downloadManager->addTask(this);
+    }else {
+        setProgress(100);
     }
 }
 
@@ -126,7 +129,8 @@ Task::TaskStatus Task::getTaskStatus()
 void Task::start()
 {
     setTaskStatus(CHECKING);
-    checkChunks();
+    QtConcurrent::run(this, &Task::checkChunks);
+    //checkChunks();
 }
 
 void Task::stop()

@@ -100,9 +100,12 @@ void EditMetadataFileWindow::save(bool saveAs)
 
         metadataFile->setChunkSizeLevel(ui->chunklvl->value());
 
-        //TODO: generowanie hashy dla chankow, to tylko atrapa
+
         for(quint64 a = 0; a < ceil((double)metadataFile->getFilesize()/metadataFile->getChunkSize()); a++) {
-            metadataFile->addChunk(a);
+            origFile.seek(a*metadataFile->getChunkSize());
+            QByteArray ch;
+            ch = origFile.read(metadataFile->getChunkSize());
+            metadataFile->addChunk(qChecksum(ch, ch.size()));
         }
     }
 

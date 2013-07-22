@@ -56,7 +56,7 @@ void DownloadManager::chunkDownloaded(QByteArray chunkData, void *badChunksSpace
         if(bcs->incorrectChunks.size() == 0) {
             delete bcs->fileDownloader;
             Task *t = bcs->task;
-            (*tasks.find(t)).removeAll((*bcs));
+            //(*tasks.find(t)).removeAll((*bcs));
             delete bcs;
             startNextBCS(t);
         }
@@ -103,9 +103,9 @@ bool DownloadManager::startDownloader(BadChunksSpace *bcs)
 
 void DownloadManager::startNextBCS(Task *task)
 {
-    Q_FOREACH(BadChunksSpace bcs, tasks.value(task)) {
-        if(bcs.fileDownloader == NULL) {
-            if( ! startDownloader(&bcs)) {
+    Q_FOREACH(BadChunksSpace *bcs, tasks.value(task)) {
+        if(bcs->fileDownloader == NULL) {
+            if( ! startDownloader(bcs)) {
                 return;
             }
         }
@@ -119,9 +119,9 @@ void DownloadManager::startDownloading(Task *task)
     }
 }
 
-QList<DownloadManager::BadChunksSpace> DownloadManager::optimizeChunks(Task *task)
+QList<DownloadManager::BadChunksSpace *> DownloadManager::optimizeChunks(Task *task)
 {
-    QList<BadChunksSpace> badChunksSpaces;
+    QList<BadChunksSpace*> badChunksSpaces;
 
     BadChunksSpace* bcs = NULL;
 
@@ -133,12 +133,12 @@ QList<DownloadManager::BadChunksSpace> DownloadManager::optimizeChunks(Task *tas
             }
             bcs->incorrectChunks.append(chunk);
         }else {
-            badChunksSpaces.append(*bcs);
+            badChunksSpaces.append(bcs);
             bcs = NULL;
         }
     }
     if(bcs != NULL) {
-        badChunksSpaces.append(*bcs);
+        badChunksSpaces.append(bcs);
     }
 
     return badChunksSpaces;

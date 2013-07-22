@@ -5,6 +5,7 @@
 #include <QFile>
 #include <QVector>
 #include <QThread>
+#include <QtCore>
 class Task;
 #include <metadatafile.h>
 #include <downloadmanager.h>
@@ -43,8 +44,6 @@ public:
     void writeCorrectData(Chunk* chunk, QByteArray data);
 
     void setTaskStatus(TaskStatus status);
-    void start();
-    void stop();
 
 protected:
     MetadataFile* metaFile;
@@ -66,6 +65,8 @@ signals:
     void progressChanged(int progress);
 
 public slots:
+    void start();
+    void stop();
     
 };
 
