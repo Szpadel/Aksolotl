@@ -25,7 +25,8 @@ SOURCES += main.cpp\
     task.cpp \
     downloadmanager.cpp \
     chunk.cpp \
-    newtaskdialog.cpp
+    newtaskdialog.cpp \
+    downloader.cpp
 
 HEADERS  += mainwindow.h \
     repositoryparser.h \
@@ -38,7 +39,8 @@ HEADERS  += mainwindow.h \
     task.h \
     downloadmanager.h \
     chunk.h \
-    newtaskdialog.h
+    newtaskdialog.h \
+    downloader.h
 
 FORMS    += mainwindow.ui \
     editmetadatafilewindow.ui \
